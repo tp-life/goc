@@ -90,7 +90,7 @@ func (b *Build) Build() error {
 	log.Infoln("Go building in temp...")
 	// new -o will overwrite  previous ones
 	b.BuildFlags = b.BuildFlags + " -o " + b.Target
-	cmd := exec.Command("/sh", "-c", "go build "+b.BuildFlags+" "+b.Packages)
+	cmd := exec.Command("/bin/sh", "-c", "go build "+b.BuildFlags+" "+b.Packages)
 	cmd.Dir = b.TmpWorkingDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

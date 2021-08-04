@@ -1,4 +1,12 @@
 /*
+ * @Author: your name
+ * @Date: 2021-08-04 21:27:46
+ * @LastEditTime: 2021-08-04 22:03:12
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \goc-master\pkg\build\run.go
+ */
+/*
  Copyright 2020 Qiniu Cloud (qiniu.com)
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +34,7 @@ import (
 
 // Run excutes the main package in addition with the internal goc features
 func (b *Build) Run() error {
-	cmd := exec.Command("/sh", "-c", "go run "+b.BuildFlags+" "+b.GoRunExecFlag+" "+b.Packages+" "+b.GoRunArguments)
+	cmd := exec.Command("/bin/sh", "-c", "go run "+b.BuildFlags+" "+b.GoRunExecFlag+" "+b.Packages+" "+b.GoRunArguments)
 	cmd.Dir = b.TmpWorkingDir
 
 	if b.NewGOPATH != "" {

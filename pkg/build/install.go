@@ -1,4 +1,12 @@
 /*
+ * @Author: your name
+ * @Date: 2021-08-04 21:27:46
+ * @LastEditTime: 2021-08-04 22:02:54
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \goc-master\pkg\build\install.go
+ */
+/*
  Copyright 2020 Qiniu Cloud (qiniu.com)
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,7 +56,7 @@ func NewInstall(buildflags string, args []string, workingDir string) (*Build, er
 // Install use the 'go install' tool to install packages
 func (b *Build) Install() error {
 	log.Println("Go building in temp...")
-	cmd := exec.Command("/sh", "-c", "go install "+b.BuildFlags+" "+b.Packages)
+	cmd := exec.Command("/bin/sh", "-c", "go install "+b.BuildFlags+" "+b.Packages)
 	cmd.Dir = b.TmpWorkingDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
