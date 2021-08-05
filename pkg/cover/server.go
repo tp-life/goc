@@ -135,7 +135,8 @@ func (s *server) registerService(c *gin.Context) {
 		return
 	}
 
-	realIP := c.ClientIP()
+	//realIP := c.ClientIP()
+	realIP := host
 	// only for IPV4
 	// refer: https://github.com/wokill/goc/issues/177
 	if net.ParseIP(realIP).To4() != nil && host != realIP {
