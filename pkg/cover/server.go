@@ -91,6 +91,7 @@ func (s *server) Route(w io.Writer) *gin.Engine {
 		v1.POST("/cover/init", s.initSystem)
 		v1.GET("/cover/list", s.listServices)
 		v1.POST("/cover/remove", s.removeServices)
+		v1.POST("/cover/redirect", s.redirect)
 	}
 
 	return r
@@ -111,10 +112,40 @@ type ProfileParam struct {
 	SkipFilePatterns  []string `form:"skipfile" json:"skipfile"`
 }
 
+// RedirectParam is redirect url
+type RedirectParam struct {
+	Service string `json:"service" form:"service" binding:"required"`
+	Port    string `json:"port" form:"port"`
+}
+
 //listServices list all the registered services
 func (s *server) listServices(c *gin.Context) {
 	services := s.Store.GetAll()
 	c.JSON(http.StatusOK, services)
+}
+
+// redirect other url profile
+func (s *server) redirect(c *gin.Context) {
+	var service RedirectParam
+	if err := c.ShouldBind(&service); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	adders := s.Store.Get(service.Service)
+	if len(adders) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "service is empty or service is not register"})
+		return
+	}
+	parse, err := url.Parse(adders[0])
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	port := service.Port
+	if len(port) == 0 {
+		port = parse.Port()
+	}
+	c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("http://%s:%s", parse.Hostname(), port))
 }
 
 func (s *server) registerService(c *gin.Context) {
@@ -124,7 +155,7 @@ func (s *server) registerService(c *gin.Context) {
 		return
 	}
 	svrsUnderTest := s.Store.GetAll()
-	filterAddrList, err := filterAddrs([]string{service.Name}, []string{},true, svrsUnderTest)
+	filterAddrList, err := filterAddrs([]string{service.Name}, []string{}, true, svrsUnderTest)
 	if err == nil {
 		for _, addr := range filterAddrList {
 			err := s.Store.Remove(addr)
