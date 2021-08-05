@@ -123,6 +123,16 @@ func (s *server) registerService(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	svrsUnderTest := s.Store.GetAll()
+	filterAddrList, err := filterAddrs([]string{service.Address}, []string{},true, svrsUnderTest)
+	if err == nil {
+		for _, addr := range filterAddrList {
+			err := s.Store.Remove(addr)
+			if err != nil {
+				fmt.Printf("Register service %s removed from the center. err=[%s]", addr, err.Error())
+			}
+		}
+	}
 
 	u, err := url.Parse(service.Address)
 	if err != nil {
