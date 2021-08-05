@@ -124,7 +124,7 @@ func (s *server) registerService(c *gin.Context) {
 		return
 	}
 	svrsUnderTest := s.Store.GetAll()
-	filterAddrList, err := filterAddrs([]string{service.Address}, []string{},true, svrsUnderTest)
+	filterAddrList, err := filterAddrs([]string{service.Name}, []string{},true, svrsUnderTest)
 	if err == nil {
 		for _, addr := range filterAddrList {
 			err := s.Store.Remove(addr)
