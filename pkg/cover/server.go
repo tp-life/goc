@@ -91,7 +91,7 @@ func (s *server) Route(w io.Writer) *gin.Engine {
 		v1.POST("/cover/init", s.initSystem)
 		v1.GET("/cover/list", s.listServices)
 		v1.POST("/cover/remove", s.removeServices)
-		v1.POST("/cover/redirect", s.redirect)
+		v1.GET("/cover/redirect", s.redirect)
 	}
 
 	return r
@@ -132,20 +132,20 @@ func (s *server) redirect(c *gin.Context) {
 		return
 	}
 	adders := s.Store.Get(service.Service)
+
 	if len(adders) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "service is empty or service is not register"})
 		return
 	}
-	parse, err := url.Parse(adders[0])
+
+	 resp, err := NewWorker(adders[0]).RedirectService(adders[0], service.Service, service.Port)
 	if err != nil {
+		fmt.Println("get url error")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	port := service.Port
-	if len(port) == 0 {
-		port = parse.Port()
-	}
-	c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("http://%s:%s", parse.Hostname(), port))
+	c.Header("Content-Type", "text/html; charset=utf-8")
+	c.String(http.StatusOK, string(resp))
 }
 
 func (s *server) registerService(c *gin.Context) {

@@ -38,6 +38,7 @@ type Action interface {
 	InitSystem() ([]byte, error)
 	ListServices() ([]byte, error)
 	RegisterService(svr ServiceUnderTest) ([]byte, error)
+	RedirectService(address,name, port string) ([]byte, error)
 }
 
 const (
@@ -71,6 +72,9 @@ func NewWorker(host string) Action {
 		client: http.DefaultClient,
 	}
 }
+func (c *client) GetClient() *client {
+	return c
+}
 
 func (c *client) RegisterService(srv ServiceUnderTest) ([]byte, error) {
 	if _, err := url.ParseRequestURI(srv.Address); err != nil {
@@ -81,6 +85,18 @@ func (c *client) RegisterService(srv ServiceUnderTest) ([]byte, error) {
 	}
 	u := fmt.Sprintf("%s%s?name=%s&address=%s", c.Host, CoverRegisterServiceAPI, srv.Name, srv.Address)
 	_, res, err := c.do("POST", u, "", nil)
+	return res, err
+}
+
+func (c *client) RedirectService(address,name, port string) ([]byte, error) {
+	parse, err := url.Parse(address)
+	if err != nil {
+		return nil, err
+	}
+	if len(port) == 0 {
+		port = parse.Port()
+	}
+	_, res, err := c.do("GET",fmt.Sprintf("http://%s:%s/v1/cover/html?service=%s", parse.Hostname(), port, name), "", nil )
 	return res, err
 }
 
