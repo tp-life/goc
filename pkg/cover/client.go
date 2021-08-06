@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -69,7 +70,7 @@ func NewWorker(host string) Action {
 	}
 	return &client{
 		Host:   host,
-		client: http.DefaultClient,
+		client: &http.Client{Timeout: 500 *time.Second},
 	}
 }
 func (c *client) GetClient() *client {
