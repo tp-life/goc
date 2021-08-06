@@ -39,6 +39,7 @@ const LogFile = "goc.log"
 type server struct {
 	PersistenceFile string
 	Store           Store
+	RedirectPort    string
 }
 
 // NewFileBasedServer new a file based server with persistenceFile
@@ -71,6 +72,10 @@ func (s *server) Run(port string) {
 	mw := io.MultiWriter(f, os.Stdout)
 	r := s.Route(mw)
 	log.Fatal(r.Run(port))
+}
+
+func (s *server) SetRedirectPort (port string) {
+	s.RedirectPort = port
 }
 
 // Router init goc server engine
@@ -138,9 +143,8 @@ func (s *server) redirect(c *gin.Context) {
 		return
 	}
 
-	 resp, err := NewWorker(adders[0]).RedirectService(adders[0], service.Service, service.Port)
+	resp, err := NewWorker(adders[0]).RedirectService(adders[0], service.Service, service.Port)
 	if err != nil {
-		fmt.Println("get url error")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
