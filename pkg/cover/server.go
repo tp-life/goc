@@ -142,7 +142,9 @@ func (s *server) redirect(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "service is empty or service is not register"})
 		return
 	}
-
+	if len(service.Port) == 0 {
+		service.Port = s.RedirectPort
+	}
 	resp, err := NewWorker(adders[0]).RedirectService(adders[0], service.Service, service.Port)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
