@@ -74,10 +74,6 @@ func (s *server) Run(port string) {
 	log.Fatal(r.Run(port))
 }
 
-func (s *server) SetRedirectPort (port string) {
-	s.RedirectPort = port
-}
-
 // Router init goc server engine
 func (s *server) Route(w io.Writer) *gin.Engine {
 	if w != nil {
@@ -117,41 +113,10 @@ type ProfileParam struct {
 	SkipFilePatterns  []string `form:"skipfile" json:"skipfile"`
 }
 
-// RedirectParam is redirect url
-type RedirectParam struct {
-	Service string `json:"service" form:"service" binding:"required"`
-	Port    string `json:"port" form:"port"`
-}
-
 //listServices list all the registered services
 func (s *server) listServices(c *gin.Context) {
 	services := s.Store.GetAll()
 	c.JSON(http.StatusOK, services)
-}
-
-// redirect other url profile
-func (s *server) redirect(c *gin.Context) {
-	var service RedirectParam
-	if err := c.ShouldBind(&service); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	adders := s.Store.Get(service.Service)
-
-	if len(adders) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "service is empty or service is not register"})
-		return
-	}
-	if len(service.Port) == 0 {
-		service.Port = s.RedirectPort
-	}
-	resp, err := NewWorker(adders[0]).RedirectService(adders[0], service.Service, service.Port)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	c.Header("Content-Type", "text/html; charset=utf-8")
-	c.String(http.StatusOK, string(resp))
 }
 
 func (s *server) registerService(c *gin.Context) {
